@@ -11,15 +11,19 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
-  bool appInitialized = false;
+  double? squatMax;
+  double? snatchMax;
+  double? cleanJerkMax;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    SharedPreferences.getInstance().then((value) => {
+    SharedPreferences.getInstance().then((response) => {
       setState(() => {
-        appInitialized = value.getBool('app_initialized') ?? false
+        squatMax = response.getDouble('squat_max') ?? 315.0,
+        snatchMax = response.getDouble('snatch_max') ?? 135.0,
+        cleanJerkMax = response.getDouble('clean_jerk_max') ?? 225.0
       })
     });
   }
@@ -27,23 +31,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
 
-    return appInitialized == false ?
-    // render setup screen if app has not been initialized
-    Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            Text('enter your maxes:'),
-            MaterialButton(
-                onPressed: () => {_initializeApp()},
-              child: Text('save your settings')
-            )
-          ],
-        ),
-      ),
-    ) :
-    // render main screen if app has been initialized
-    Scaffold(
+    return Scaffold(
       drawer: NavigationDrawer(),
       appBar: AppBar(
         title: Text('Home'),
@@ -62,19 +50,19 @@ class _HomeState extends State<Home> {
                   Column(
                     children: [
                       Text('X'),
-                      Text('405')
+                      Text(squatMax.toString())
                     ]
                   ),
                   Column(
                       children: [
                         Text('X'),
-                        Text('225')
+                        Text(snatchMax.toString())
                       ]
                   ),
                   Column(
                       children: [
                         Text('X'),
-                        Text('315')
+                        Text(cleanJerkMax.toString())
                       ]
                   ),
                 ],
@@ -118,11 +106,5 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _initializeApp() {
-    SharedPreferences.getInstance().then((value) => {
-      value.setBool('app_initialized', true)
-    });
-    print('app initialized');
-  }
 }
 

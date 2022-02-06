@@ -2,10 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Settings extends StatelessWidget {
+class Settings extends StatefulWidget {
+  @override
+  State<Settings> createState() => _SettingsState();
+}
+
+class _SettingsState extends State<Settings> {
   // const Settings({Key? key}) : super(key: key);
 
+  // we will use this key to do bulk actions on form data
   final _formKey = GlobalKey<FormBuilderState>();
+
+  bool appInitialized = false;
+  double? squatMax;
+  double? snatchMax;
+  double? cleanJerkMax;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    SharedPreferences.getInstance().then((response) => {
+      setState((){
+        appInitialized = response.getBool('app_initialized') ?? false;
+        squatMax = response.getDouble('squat_max') ?? 315.0;
+        snatchMax = response.getDouble('snatch_max') ?? 135.0;
+        cleanJerkMax = response.getDouble('clean_jerk_max') ?? 225.0;
+      })
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +49,7 @@ class Settings extends StatelessWidget {
                   name: 'squat',
                   decoration: InputDecoration(
                     labelText:
-                    'current squat max',
+                    'current: ${squatMax}',
                   ),
                   keyboardType: TextInputType.number,
                 ),
@@ -33,7 +58,7 @@ class Settings extends StatelessWidget {
                   name: 'snatch',
                   decoration: InputDecoration(
                     labelText:
-                    'current snatch max',
+                    'current: ${snatchMax}',
                   ),
                   keyboardType: TextInputType.number,
                 ),
@@ -42,7 +67,7 @@ class Settings extends StatelessWidget {
                   name: 'clean & jerk',
                   decoration: InputDecoration(
                     labelText:
-                    'current c&j max',
+                    'current: ${cleanJerkMax}',
                   ),
                   keyboardType: TextInputType.number,
                 ),
@@ -79,9 +104,13 @@ class Settings extends StatelessWidget {
       ),
     );
   }
+
   void _uninitializeApp() {
     SharedPreferences.getInstance().then((value) => {
-      value.setBool('app_initialized', false)
+      value.setBool('app_initialized', false),
+      value.setDouble('squat_max', 0.0),
+      value.setDouble('snatch_max', 0.0),
+      value.setDouble('clean_jerk_max', 0.0),
     });
     print('app uninitialized');
   }
